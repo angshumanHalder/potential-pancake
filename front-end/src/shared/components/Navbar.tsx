@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import fullLogo from "../../assets/images/fullLogo.png";
 import { googleLogout } from "@react-oauth/google";
 import { SignInModal } from "../auth/Signin";
+import { logoutRequest } from "../../apis/auth";
 
 const Links = [{ label: "Home", link: "/home" }];
 
 export const Navbar: React.FC<{}> = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [profile, setProfile] = useState<LoginResponse | null>(null);
+  const [profile, setProfile] = useState<{ Picture: string; GivenName: string } | null>(null);
+  const token = localStorage.getItem("potential_token");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,13 +23,27 @@ export const Navbar: React.FC<{}> = () => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log("useeffct", token);
+    !token && navigate("/", { replace: true });
+  }, [token]);
+
   const onLoginSuccess = (loginData: LoginResponse) => {
-    setProfile(loginData);
-    localStorage.setItem("profile", JSON.stringify(loginData));
+    const profile = {
+      Picture: loginData.Picture,
+      GivenName: loginData.GivenName,
+    };
+    setProfile(profile);
+    localStorage.setItem("profile", JSON.stringify(profile));
+    localStorage.setItem("potential_token", loginData.Token);
     navigate("/home", { replace: true });
   };
 
-  const logoutHandler = () => {
+  const logoutHandler = async () => {
+    await logoutRequest();
+    localStorage.removeItem("profile");
+    localStorage.removeItem("potential_token");
+    setProfile(null);
     googleLogout();
   };
 
