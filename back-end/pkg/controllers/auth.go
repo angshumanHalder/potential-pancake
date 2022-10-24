@@ -16,9 +16,7 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-type ErrorResponse struct {
-	Message string
-}
+const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
 type LoginRequest struct {
 	Code  string
@@ -26,7 +24,6 @@ type LoginRequest struct {
 }
 
 func Login(db *mongo.Database) http.Handler {
-	log.Printf("inside login")
 	var googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:3000",
 		ClientID:     config.Config.Client.Id,
@@ -35,7 +32,6 @@ func Login(db *mongo.Database) http.Handler {
 		Endpoint:     google.Endpoint,
 	}
 
-	const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			return
@@ -65,13 +61,21 @@ func Login(db *mongo.Database) http.Handler {
 				log.Println("unmarshal", err)
 				return nil, err
 			}
-			services.InsertUser(db, googleUser)
+			if err = services.InsertUser(db, googleUser, token.AccessToken, token.RefreshToken); err != nil {
+				return nil, err
+			}
+			jwtToken, err := utils.IssueJWTToken(googleUser.Email)
+			if err != nil {
+				return nil, err
+			}
 			return struct {
 				Picture   string
 				GivenName string
+				Token     string
 			}{
 				Picture:   googleUser.Picture,
 				GivenName: googleUser.GivenName,
+				Token:     jwtToken,
 			}, nil
 		})
 	})

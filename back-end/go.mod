@@ -7,6 +7,8 @@ require (
 	go.mongodb.org/mongo-driver v1.10.3
 )
 
+require github.com/golang-jwt/jwt/v4 v4.4.2 // direct
+
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
