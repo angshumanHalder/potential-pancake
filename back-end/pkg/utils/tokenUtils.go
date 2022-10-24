@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/angshumanHalder/potential-pancake/pkg/config"
 	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
@@ -31,8 +34,8 @@ func IssueJWTToken(email string) (string, error) {
 	return token, nil
 }
 
-func TokenValid(r *http.Request) (jwt.MapClaims, error) {
-	token, err := VerifyToken(r)
+func TokenValid(db *mongo.Database, r *http.Request) (jwt.MapClaims, error) {
+	token, err := VerifyToken(db, r)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +46,7 @@ func TokenValid(r *http.Request) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-func VerifyToken(r *http.Request) (*jwt.Token, error) {
+func VerifyToken(db *mongo.Database, r *http.Request) (*jwt.Token, error) {
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -55,6 +58,13 @@ func VerifyToken(r *http.Request) (*jwt.Token, error) {
 		verr, ok := err.(*jwt.ValidationError)
 		if ok && errors.Is(verr.Inner, errors.New("token has expired")) {
 			return nil, ErrExpiredToken
+		}
+		return nil, ErrInvalidToken
+	}
+	invalidToken := db.Collection("invalid_tokens").FindOne(context.Background(), bson.M{"token": token})
+	if invalidToken.Err() != nil {
+		if invalidToken.Err().Error() == mongo.ErrNoDocuments.Error() {
+			return token, nil
 		}
 		return nil, ErrInvalidToken
 	}

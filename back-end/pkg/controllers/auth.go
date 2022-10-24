@@ -33,6 +33,7 @@ func Login(db *mongo.Database) http.Handler {
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Login Handler")
 		if r.Method != "POST" {
 			return
 		}
@@ -62,6 +63,7 @@ func Login(db *mongo.Database) http.Handler {
 				return nil, err
 			}
 			if err = services.InsertUser(db, googleUser, token.AccessToken, token.RefreshToken); err != nil {
+				log.Println("insert user", err)
 				return nil, err
 			}
 			jwtToken, err := utils.IssueJWTToken(googleUser.Email)
@@ -77,6 +79,22 @@ func Login(db *mongo.Database) http.Handler {
 				GivenName: googleUser.GivenName,
 				Token:     jwtToken,
 			}, nil
+		})
+	})
+}
+
+func Logout(db *mongo.Database) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Logout Handler")
+		if r.Method != "GET" {
+			return
+		}
+		utils.ReturnJSON(&w, func() (interface{}, error) {
+			token := utils.ExtractToken(r)
+			if err := services.InsertInvalidToken(db, token); err != nil {
+				return nil, err
+			}
+			return nil, nil
 		})
 	})
 }

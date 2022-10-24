@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -48,8 +49,27 @@ func InsertUser(db *mongo.Database, user GoogleUser, accessToken, refreshToken s
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
+	existingUser, _ := GetUser(db, user.Email)
+	if existingUser != nil {
+		update := bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "access_token", Value: accessToken}, primitive.E{Key: "refresh_token", Value: refreshToken}}}}
+		if _, err := db.Collection("users").UpdateOne(ctx, bson.M{"email": user.Email}, update); err != nil {
+			return err
+		}
+		return nil
+	}
 	if _, err := db.Collection("users").InsertOne(ctx, mongoUser); err != nil {
 		return err
 	}
 	return nil
+}
+
+func GetUser(db *mongo.Database, email string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var user *User
+	err := db.Collection("users").FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
