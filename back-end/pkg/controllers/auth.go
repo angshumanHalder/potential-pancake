@@ -8,12 +8,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/angshumanHalder/potential-pancake/pkg/config"
-	"github.com/angshumanHalder/potential-pancake/pkg/services"
-	"github.com/angshumanHalder/potential-pancake/pkg/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+
+	"github.com/angshumanHalder/potential-pancake/pkg/config"
+	"github.com/angshumanHalder/potential-pancake/pkg/services"
+	"github.com/angshumanHalder/potential-pancake/pkg/utils"
 )
 
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="

@@ -51,7 +51,15 @@ func InsertUser(db *mongo.Database, user GoogleUser, accessToken, refreshToken s
 	}
 	existingUser, _ := GetUser(db, user.Email)
 	if existingUser != nil {
-		update := bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "access_token", Value: accessToken}, primitive.E{Key: "refresh_token", Value: refreshToken}}}}
+		update := bson.D{
+			primitive.E{
+				Key: "$set",
+				Value: bson.D{
+					primitive.E{Key: "access_token", Value: accessToken},
+					primitive.E{Key: "refresh_token", Value: refreshToken},
+				},
+			},
+		}
 		if _, err := db.Collection("users").UpdateOne(ctx, bson.M{"email": user.Email}, update); err != nil {
 			return err
 		}

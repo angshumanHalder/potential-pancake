@@ -6,10 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/angshumanHalder/potential-pancake/pkg/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/angshumanHalder/potential-pancake/pkg/config"
 )
 
 type MongoDataStore struct {

@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/angshumanHalder/potential-pancake/pkg/config"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/angshumanHalder/potential-pancake/pkg/config"
 )
 
 var (
