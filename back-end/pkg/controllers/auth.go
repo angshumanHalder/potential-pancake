@@ -100,6 +100,6 @@ func Logout(db *mongo.Database) http.HandlerFunc {
 	})
 }
 
-func AuthorizeCalendar(db *mongo.Database) http.Handler {
+func AuthorizeCalendar(db *mongo.Database) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 }
