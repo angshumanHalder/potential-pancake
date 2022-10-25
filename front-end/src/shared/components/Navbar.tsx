@@ -1,56 +1,50 @@
-import {
-  Box,
-  Flex,
-  HStack,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  useColorModeValue,
-  useDisclosure,
-  Image,
-  Link,
-} from "@chakra-ui/react";
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { Avatar, Box, Button, Flex, HStack, Image, Link, Menu, MenuButton, MenuItem, MenuList, Text, useColorModeValue, useDisclosure } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import fullLogo from "../../assets/images/fullLogo.png";
+import { googleLogout } from "@react-oauth/google";
+import { SignInModal } from "../auth/Signin";
+import { logoutRequest } from "../../apis/auth";
 
-const Links = ["Dashboard", "Projects", "Team"];
+const Links = [{ label: "Home", link: "/home" }];
 
-interface NavbarProps {
-  isSignedIn?: false;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ isSignedIn }) => {
+export const Navbar: React.FC<{}> = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [profile, setProfile] = useState<{ Picture: string; GivenName: string } | null>(null);
+  const token = localStorage.getItem("potential_token");
+  const navigate = useNavigate();
 
-  const renderSignInModal = () => {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader textAlign="center">
-            <Box textAlign="end">
-              <FontAwesomeIcon onClick={onClose} icon={faXmark} />
-            </Box>
-            <Text fontSize="2xl" mb={5}>
-              Sign in to
-            </Text>
-            <Box>
-              <Image src={fullLogo} height={30} width={192} margin="auto" />
-            </Box>
-          </ModalHeader>
-          <ModalBody textAlign="center">
-            <Text fontSize="xl" mb={10}>
-              Log in to join your interview session.
-            </Text>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
+  useEffect(() => {
+    const profile = localStorage.getItem("profile");
+    const profileData: LoginResponse | null = profile ? JSON.parse(profile) : null;
+    setProfile(profileData);
+    return () => {
+      setProfile(null);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("useeffct", token);
+    !token && navigate("/", { replace: true });
+  }, [token]);
+
+  const onLoginSuccess = (loginData: LoginResponse) => {
+    const profile = {
+      Picture: loginData.Picture,
+      GivenName: loginData.GivenName,
+    };
+    setProfile(profile);
+    localStorage.setItem("profile", JSON.stringify(profile));
+    localStorage.setItem("potential_token", loginData.Token);
+    navigate("/home", { replace: true });
+  };
+
+  const logoutHandler = async () => {
+    await logoutRequest();
+    localStorage.removeItem("profile");
+    localStorage.removeItem("potential_token");
+    setProfile(null);
+    googleLogout();
   };
 
   return (
@@ -60,13 +54,25 @@ export const Navbar: React.FC<NavbarProps> = ({ isSignedIn }) => {
           <Image src={fullLogo} height={30} width={192} />
         </Box>
         <Box>
-          {isSignedIn ? (
-            <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
-              {Links.map((link) => (
-                <Link key={link} href={link}>
-                  {link}
-                </Link>
-              ))}
+          {profile ? (
+            <HStack spacing={8} alignItems={"center"}>
+              <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
+                {Links.map((link) => (
+                  <Link key={link.link} href={link.link}>
+                    {link.label}
+                  </Link>
+                ))}
+              </HStack>
+              <Flex alignItems={"center"}>
+                <Menu>
+                  <MenuButton as={Button} rounded={"full"} variant={"link"} cursor={"pointer"} minW={0}>
+                    <Avatar src={profile.Picture} name={profile.GivenName} size="sm" />
+                  </MenuButton>
+                  <MenuList onClick={logoutHandler}>
+                    <MenuItem>Logout</MenuItem>
+                  </MenuList>
+                </Menu>
+              </Flex>
             </HStack>
           ) : (
             <Text color="yellow" onClick={onOpen} role="button">
@@ -75,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isSignedIn }) => {
           )}
         </Box>
       </Flex>
-      {renderSignInModal()}
+      <SignInModal isOpen={isOpen} onClose={onClose} onLoginSuccess={onLoginSuccess} />
     </Box>
   );
 };

@@ -3,8 +3,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { Navbar } from "../../shared/components/Navbar";
 import landing from "../../assets/images/landing.jpg";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Landing = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("potential_token");
+
+  useEffect(() => {
+    token && navigate("/home", { replace: true });
+  }, [token]);
+
   return (
     <>
       <Box mb={5}>
