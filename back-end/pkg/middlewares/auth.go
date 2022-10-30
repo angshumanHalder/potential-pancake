@@ -4,15 +4,14 @@ import (
 	"context"
 	"net/http"
 
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/angshumanHalder/potential-pancake/pkg/services"
 	"github.com/angshumanHalder/potential-pancake/pkg/utils"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type contextKey int
 
-const userEmail contextKey = 0
+const UserEmail contextKey = 0
 
 func AuthMiddleware(db *mongo.Database) func(http.HandlerFunc) http.Handler {
 	return func(next http.HandlerFunc) http.Handler {
@@ -32,7 +31,7 @@ func AuthMiddleware(db *mongo.Database) func(http.HandlerFunc) http.Handler {
 				http.Error(w, "User not found with associated token", http.StatusUnauthorized)
 				return
 			}
-			ctxWithUser := context.WithValue(r.Context(), userEmail, user)
+			ctxWithUser := context.WithValue(r.Context(), UserEmail, user)
 			rWithUser := r.WithContext(ctxWithUser)
 			next.ServeHTTP(w, rWithUser)
 		})

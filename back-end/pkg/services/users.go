@@ -9,10 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type UserSchema struct {
-	Verified bool `bson:"verified"`
-}
-
 type User struct {
 	Id           primitive.ObjectID `bson:"_id"`
 	Email        string             `bson:"email"`

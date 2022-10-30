@@ -13,7 +13,7 @@ import (
 func main() {
 	config.ReadConfigVars()
 	datastore := db.CreateDataStore()
-	defer datastore.Client.Disconnect(context.TODO())
+	defer datastore.Disconnect(context.TODO())
 
 	var wg sync.WaitGroup
 	wg.Add(1)
