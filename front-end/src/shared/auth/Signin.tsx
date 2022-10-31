@@ -55,6 +55,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onLog
     },
     redirect_uri: "http://localhost:4000",
     flow: "auth-code",
+    scope: "https://www.googleapis.com/auth/calendar",
   });
 
   return (

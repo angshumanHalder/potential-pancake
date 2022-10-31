@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, AlertTitle, Box, Text, useColorMode, useColorModeValue } from "@chakra-ui/react";
+import { Alert, AlertIcon, AlertTitle, Box, Text, useColorModeValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { fetchAllInterviews } from "../../apis/interviews";
 import { Layout } from "../../shared/components/Layout";
