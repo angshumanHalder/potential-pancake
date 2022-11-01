@@ -14,7 +14,7 @@ export const fetchAllInterviews: () => Promise<InterviewSession[]> = async () =>
 export const createInterview: (payload: CreateInterviewRequest) => Promise<InterviewSession> = async (
   payload: CreateInterviewRequest
 ) => {
-  const res = await fetch("/api/create-calendar", {
+  const res = await fetch("/api/create-event", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

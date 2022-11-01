@@ -17,7 +17,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func Calendar(db *mongo.Database) http.HandlerFunc {
+func CreateEvent(db *mongo.Database) http.HandlerFunc {
 	var googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:3000",
 		ClientID:     config.Config.Client.Id,
@@ -52,7 +52,7 @@ func Calendar(db *mongo.Database) http.HandlerFunc {
 				{Email: event.Attendees[1]},
 			},
 		}
-		var gT = oauth2.Token{
+		gT := oauth2.Token{
 			AccessToken: user.AccessToken,
 		}
 		client := googleOauthConfig.Client(context.Background(), &gT)
