@@ -4,3 +4,11 @@ interface InterviewSession {
   Date: string;
   Attendees: Array<string>;
 }
+
+interface CreateInterviewRequest {
+  name: string;
+  startDateTime: string;
+  endDateTime: string;
+  attendees: Array<string>;
+  timeZone: string;
+}

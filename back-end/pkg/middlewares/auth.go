@@ -31,9 +31,8 @@ func AuthMiddleware(db *mongo.Database) func(http.HandlerFunc) http.Handler {
 				http.Error(w, "User not found with associated token", http.StatusUnauthorized)
 				return
 			}
-			ctxWithUser := context.WithValue(r.Context(), UserEmail, user)
-			rWithUser := r.WithContext(ctxWithUser)
-			next.ServeHTTP(w, rWithUser)
+			ctx := context.WithValue(r.Context(), UserEmail, user)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }

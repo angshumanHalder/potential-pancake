@@ -33,17 +33,18 @@ func Calendar(db *mongo.Database) http.HandlerFunc {
 		var event services.CalendarEvent
 		utils.FromJSON(r.Body, &event)
 		// call google api
-		user := r.Context().Value(middlewares.UserEmail).(services.User)
+		user := r.Context().Value(middlewares.UserEmail).(*services.User)
+		log.Println(event.StartDateTime)
 		googleCalendarEvent := &calendar.Event{
 			Summary:     event.Name,
 			Description: "Interview session",
 			Start: &calendar.EventDateTime{
-				DateTime: event.StartTime,
-				TimeZone: event.Zone,
+				DateTime: event.StartDateTime,
+				TimeZone: event.TimeZone,
 			},
 			End: &calendar.EventDateTime{
-				DateTime: event.EndTime,
-				TimeZone: event.Zone,
+				DateTime: event.EndDateTime,
+				TimeZone: event.TimeZone,
 			},
 			Recurrence: []string{},
 			Attendees: []*calendar.EventAttendee{
@@ -62,6 +63,7 @@ func Calendar(db *mongo.Database) http.HandlerFunc {
 		}
 		calendarId := "primary"
 		if _, err = srv.Events.Insert(calendarId, googleCalendarEvent).SendNotifications(true).Do(); err != nil {
+			log.Printf("event insert: %v", err)
 			utils.ReturnErr(&w, fmt.Errorf("unable to create calendar event"), 500)
 			return
 		}

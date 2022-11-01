@@ -1,6 +1,8 @@
 import { CodeResponse } from "@react-oauth/google";
 
-export const loginRequest: (codeResponse: CodeResponse) => Promise<LoginResponse> = async (codeResponse: CodeResponse) => {
+export const loginRequest: (codeResponse: CodeResponse) => Promise<LoginResponse> = async (
+  codeResponse: CodeResponse
+) => {
   const res = await fetch("/api/login", {
     method: "POST",
     headers: {
@@ -18,7 +20,7 @@ export const loginRequest: (codeResponse: CodeResponse) => Promise<LoginResponse
 };
 
 export const logoutRequest = async () => {
-  const res = await fetch("/api/logout", {
+  await fetch("/api/logout", {
     method: "GET",
     headers: {
       "Content-Type": "applcation/json",

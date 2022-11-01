@@ -14,7 +14,7 @@ func Serve(db *mongo.Database, port string) {
 	// handlers
 	http.Handle("/api/login", controllers.Login(db))
 	http.Handle("/api/logout", middlewares.AuthMiddleware(db)(controllers.Logout(db)))
-	http.Handle("/api/authorize-calendar", middlewares.AuthMiddleware(db)(controllers.Calendar(db)))
+	http.Handle("/api/create-calendar", middlewares.AuthMiddleware(db)(controllers.Calendar(db)))
 
 	log.Printf("JSON API server listening on %v \n", port)
 	err := http.ListenAndServe(port, nil)
