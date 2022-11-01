@@ -20,14 +20,13 @@ type Event struct {
 
 type CalendarEvent struct {
 	Name          string
-	Room          string
 	StartDateTime string
 	EndDateTime   string
 	Attendees     []string
 	TimeZone      string
 }
 
-func InsertEvent(db *mongo.Database, jsonE CalendarEvent) error {
+func InsertEvent(db *mongo.Database, jsonE CalendarEvent, room string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -42,7 +41,7 @@ func InsertEvent(db *mongo.Database, jsonE CalendarEvent) error {
 	event := Event{
 		Id:            primitive.NewObjectID(),
 		Name:          jsonE.Name,
-		Room:          jsonE.Room,
+		Room:          room,
 		Attendees:     jsonE.Attendees,
 		StartDateTime: start,
 		EndDateTime:   end,

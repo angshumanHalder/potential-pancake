@@ -67,7 +67,7 @@ func CreateEvent(db *mongo.Database) http.HandlerFunc {
 			utils.ReturnErr(&w, fmt.Errorf("unable to create calendar event"), 500)
 			return
 		}
-		if err = services.InsertEvent(db, event); err != nil {
+		if err = services.InsertEvent(db, event, utils.GenerateRoom()); err != nil {
 			utils.ReturnErr(&w, fmt.Errorf("unable to create calendar event"), 500)
 			return
 		}
