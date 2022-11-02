@@ -1,7 +1,8 @@
 interface InterviewSession {
   Name: string;
   Room: string;
-  Date: string;
+  StartDateTime: number;
+  endDateTime: number;
   Attendees: Array<string>;
 }
 

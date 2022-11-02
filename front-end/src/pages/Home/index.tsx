@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, AlertTitle, Box, Text, useColorModeValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { fetchAllInterviews } from "../../apis/interviews";
+import { cancelInterview, fetchAllInterviews } from "../../apis/interviews";
 import { Layout } from "../../shared/components/Layout";
 import { InterviewSession } from "./components/InterviewSession";
 
@@ -20,13 +20,16 @@ export const Home = () => {
 
   useEffect(() => {
     fetchData();
-  }, [upcomingSessions]);
+    return () => {
+      setUpcomingSessions([]);
+    };
+  }, []);
 
   return (
     <Layout>
       <Box borderRadius={"sm"} boxShadow="2xl">
         {error && (
-          <Alert status="error">
+          <Alert status="error" mb={2}>
             <AlertIcon />
             <AlertTitle>{error}</AlertTitle>
           </Alert>
@@ -35,7 +38,13 @@ export const Home = () => {
           upcomingSessions.map((session) => {
             return (
               <Box mb={10} borderRadius={"10px"} bg={value} key={session.Room}>
-                <InterviewSession session={session} />
+                <InterviewSession
+                  session={session}
+                  onCancel={async () => {
+                    onCancel(session.Room);
+                    fetchData();
+                  }}
+                />
               </Box>
             );
           })
@@ -48,3 +57,7 @@ export const Home = () => {
     </Layout>
   );
 };
+
+async function onCancel(room: string) {
+  await cancelInterview({ Room: room });
+}

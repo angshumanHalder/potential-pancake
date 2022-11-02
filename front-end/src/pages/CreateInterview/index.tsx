@@ -139,7 +139,6 @@ async function handleSumit(values: {
     attendees: [values.interviewerEmail, values.intervieweeEmail],
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   };
-  console.log(payload);
   const data = await createInterview(payload);
   return data;
 }
