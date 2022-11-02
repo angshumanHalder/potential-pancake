@@ -17,6 +17,10 @@ import (
 	"google.golang.org/api/option"
 )
 
+type CancelEventRequest struct {
+	Room string
+}
+
 func CreateEvent(db *mongo.Database) http.HandlerFunc {
 	var googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:3000",
@@ -26,7 +30,7 @@ func CreateEvent(db *mongo.Database) http.HandlerFunc {
 		Endpoint:     google.Endpoint,
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Calendar Handler")
+		log.Println("CreateEvent")
 		if r.Method != "POST" {
 			return
 		}
@@ -73,6 +77,41 @@ func CreateEvent(db *mongo.Database) http.HandlerFunc {
 		}
 		utils.ReturnJSON(&w, func() (interface{}, error) {
 			return event, nil
+		})
+	})
+}
+
+func GetALLUserEvents(db *mongo.Database) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("GetALLUserEvents")
+		if r.Method != "GET" {
+			return
+		}
+		user := r.Context().Value(middlewares.UserEmail).(*services.User)
+		utils.ReturnJSON(&w, func() (interface{}, error) {
+			events, err := services.GetAllUserEvents(db, user.Email)
+			if err != nil {
+				return nil, err
+			}
+			return events, nil
+		})
+	})
+}
+
+func CancelEvent(db *mongo.Database) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("CancelEvent")
+		if r.Method != "POST" {
+			return
+		}
+		body := CancelEventRequest{}
+		utils.FromJSON(r.Body, &body)
+		user := r.Context().Value(middlewares.UserEmail).(*services.User)
+		utils.ReturnJSON(&w, func() (interface{}, error) {
+			if err := services.CancelEvent(db, *user, body.Room); err != nil {
+				return nil, err
+			}
+			return nil, nil
 		})
 	})
 }

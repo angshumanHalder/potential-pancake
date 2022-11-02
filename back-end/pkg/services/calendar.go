@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/angshumanHalder/potential-pancake/pkg/utils"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -26,6 +28,8 @@ type CalendarEvent struct {
 	TimeZone      string
 }
 
+const collection = "events"
+
 func InsertEvent(db *mongo.Database, jsonE CalendarEvent, room string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -46,7 +50,35 @@ func InsertEvent(db *mongo.Database, jsonE CalendarEvent, room string) error {
 		StartDateTime: start,
 		EndDateTime:   end,
 	}
-	if _, err := db.Collection("events").InsertOne(ctx, event); err != nil {
+	if _, err := db.Collection(collection).InsertOne(ctx, event); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetAllUserEvents(db *mongo.Database, user string) ([]Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var events []Event
+
+	cursor, err := db.Collection(collection).Find(ctx, bson.M{"attendees": user})
+	if err != nil {
+		log.Printf("Error %v", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err = cursor.All(ctx, &events); err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
+func CancelEvent(db *mongo.Database, user User, room string) error {
+	log.Println("cancel event service", room)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if _, err := db.Collection(collection).DeleteOne(ctx, bson.M{"room": room, "attendees": user.Email}); err != nil {
 		return err
 	}
 	return nil
