@@ -25,7 +25,7 @@ type LoginRequest struct {
 }
 
 func Login(db *mongo.Database) http.Handler {
-	var googleOauthConfig = &oauth2.Config{
+	googleOauthConfig := &oauth2.Config{
 		RedirectURL:  "http://localhost:3000",
 		ClientID:     config.Config.Client.Id,
 		ClientSecret: config.Config.Client.Secret,

@@ -6,15 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	calendar "google.golang.org/api/calendar/v3"
+	"google.golang.org/api/option"
+
 	"github.com/angshumanHalder/potential-pancake/pkg/config"
 	"github.com/angshumanHalder/potential-pancake/pkg/middlewares"
 	"github.com/angshumanHalder/potential-pancake/pkg/services"
 	"github.com/angshumanHalder/potential-pancake/pkg/utils"
-	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/option"
 )
 
 type CancelEventRequest struct {
@@ -22,7 +23,7 @@ type CancelEventRequest struct {
 }
 
 func CreateEvent(db *mongo.Database) http.HandlerFunc {
-	var googleOauthConfig = &oauth2.Config{
+	googleOauthConfig := &oauth2.Config{
 		RedirectURL:  "http://localhost:3000",
 		ClientID:     config.Config.Client.Id,
 		ClientSecret: config.Config.Client.Secret,

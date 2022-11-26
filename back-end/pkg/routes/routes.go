@@ -4,10 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/angshumanHalder/potential-pancake/pkg/controllers"
 	"github.com/angshumanHalder/potential-pancake/pkg/middlewares"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Serve(db *mongo.Database, port string) {
